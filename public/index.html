@@ -357,12 +357,17 @@
   /* faq */
   .faq{background:var(--cream);padding:70px 0;}
   .faq-list{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
-  .faq-item{
-    background:#fff;border:1px solid var(--line);border-radius:12px;
-    padding:18px 22px;display:flex;justify-content:space-between;align-items:center;
-    font-weight:600;font-size:15px;color:#1f2430;cursor:pointer;
+  .faq-item{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .faq-q{
+    width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:18px 22px;background:none;border:none;cursor:pointer;
+    font-family:inherit;font-weight:600;font-size:15px;color:#1f2430;text-align:left;
   }
-  .faq-item span{color:var(--green);font-size:20px;font-weight:700;}
+  .faq-q span{color:var(--green);font-size:20px;font-weight:700;flex-shrink:0;transition:transform .3s ease;}
+  .faq-item.open .faq-q span{transform:rotate(45deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+  .faq-a p{margin:0;padding:0 22px 18px;color:var(--gray);font-size:14.5px;line-height:1.65;}
+  .faq-item.open .faq-a{max-height:320px;}
 
   /* cta band */
   .cta-band{background:#fff;padding:70px 0;}
@@ -794,11 +799,26 @@
       <h2>Frequently Asked Questions</h2>
       <p class="section-sub"></p>
       <div class="faq-list">
-        <div class="faq-item">How long does it take to get my blinds? <span>+</span></div>
-        <div class="faq-item">Are your blinds made to measure? <span>+</span></div>
-        <div class="faq-item">Do you offer free measuring? <span>+</span></div>
-        <div class="faq-item">What areas do you cover? <span>+</span></div>
-        <div class="faq-item">What is the guarantee on your blinds? <span>+</span></div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">How long does it take to get my blinds? <span>+</span></button>
+          <div class="faq-a"><p>Most blinds are fitted within a week of your free home survey. We'll confirm the exact timescale when we measure up — and if you're ever in a hurry, just ask and we'll do our best.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">Are your blinds made to measure? <span>+</span></button>
+          <div class="faq-a"><p>Yes — every blind is made to measure for your exact windows. We measure up at your free home survey, so you get a perfect fit whether your windows are standard or an unusual size.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">Do you offer free measuring? <span>+</span></button>
+          <div class="faq-a"><p>Yes. Our home survey is completely free and no-obligation — we visit, measure your windows, and bring samples so you can see and feel the options before you decide.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">What areas do you cover? <span>+</span></button>
+          <div class="faq-a"><p>We cover Peterborough, Milton Keynes, Bedford and Cambridge, plus the surrounding areas. Not sure if you're in our area? Just get in touch and we'll let you know.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">What is the guarantee on your blinds? <span>+</span></button>
+          <div class="faq-a"><p>Every blind we supply comes with a full manufacturer's guarantee, and if anything isn't right after installation we'll come back and put it right. We'll confirm the exact guarantee period when you place your order.</p></div>
+        </div>
       </div>
     </div>
   </section>
@@ -997,6 +1017,18 @@
   });
 
   show(0);
+
+  // FAQ accordion — click a question to expand/collapse its answer
+  var faqItems = Array.prototype.slice.call(document.querySelectorAll('.faq-item'));
+  faqItems.forEach(function(item){
+    var q = item.querySelector('.faq-q');
+    if (!q) return;
+    q.addEventListener('click', function(){
+      var isOpen = item.classList.contains('open');
+      faqItems.forEach(function(x){ x.classList.remove('open'); }); // close any other open item
+      if (!isOpen) item.classList.add('open');
+    });
+  });
 })();
 </script>
 
