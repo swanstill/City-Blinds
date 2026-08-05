@@ -1051,7 +1051,8 @@
     steps[cur].classList.remove('active');
     cur = i;
     steps[cur].classList.add('active');
-    backBtn.disabled = cur === 0;
+    // Hide the Back button on step 1; show it from step 2 onwards
+    backBtn.style.display = cur === 0 ? 'none' : '';
     var last = cur === total - 1;
     nextBtn.textContent = last ? 'GET MY FREE QUOTE!! 👉' : 'Next';
     nextBtn.classList.toggle('hidden', !last); // only show on the contact step
