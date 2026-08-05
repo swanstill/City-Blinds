@@ -14,3 +14,7 @@ Thumbs.db
 .idea/
 
 .vercel
+
+# Environment variables — never commit credentials
+.env
+.env*.local

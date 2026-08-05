@@ -14,6 +14,20 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+// Load .env for local development (optional). Real env vars take precedence.
+try {
+  const envFile = fs.readFileSync(path.join(__dirname, '.env'), 'utf8');
+  envFile.split(/\r?\n/).forEach(function (line) {
+    line = line.trim();
+    if (!line || line.startsWith('#')) return;
+    const eq = line.indexOf('=');
+    if (eq === -1) return;
+    const key = line.slice(0, eq).trim();
+    const val = line.slice(eq + 1).trim();
+    if (key && process.env[key] === undefined) process.env[key] = val;
+  });
+} catch (e) { /* no .env file — rely on real env vars */ }
+
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
@@ -34,7 +48,58 @@ const MIME_TYPES = {
   '.woff2': 'font/woff2',
 };
 
+const { sendLeadSms, validateLead } = require('./lib/send-lead');
+
+const MAX_BODY_BYTES = 32 * 1024;
+
+function readJsonBody(req) {
+  return new Promise(function (resolve, reject) {
+    let data = '';
+    let size = 0;
+    req.on('data', function (chunk) {
+      size += chunk.length;
+      if (size > MAX_BODY_BYTES) { reject(new Error('Payload too large')); req.destroy(); return; }
+      data += chunk;
+    });
+    req.on('end', function () { resolve(data); });
+    req.on('error', reject);
+  });
+}
+
+async function handleSubmit(req, res) {
+  let payload;
+  try {
+    payload = JSON.parse(await readJsonBody(req));
+  } catch (e) {
+    res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+    return res.end(JSON.stringify({ ok: false, error: 'Invalid JSON body' }));
+  }
+  const errors = validateLead(payload);
+  if (errors.length) {
+    res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+    return res.end(JSON.stringify({ ok: false, error: errors[0] }));
+  }
+  try {
+    await sendLeadSms(payload);
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ ok: true }));
+  } catch (err) {
+    console.error('Failed to send lead SMS:', err.message);
+    res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ ok: false, error: 'Failed to send. Please try again.' }));
+  }
+}
+
 const server = http.createServer((req, res) => {
+  // Lead submission endpoint (mirrors api/submit.js for local testing).
+  if (req.url.split('?')[0] === '/api/submit') {
+    if (req.method !== 'POST') {
+      res.writeHead(405, { 'Content-Type': 'application/json; charset=utf-8' });
+      return res.end(JSON.stringify({ ok: false, error: 'Method Not Allowed' }));
+    }
+    return handleSubmit(req, res);
+  }
+
   // Only GET / HEAD supported for a static site.
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { 'Content-Type': 'text/plain; charset=utf-8' });
