@@ -134,6 +134,11 @@
     color:var(--purple);font-size:13px;font-weight:700;opacity:.7;
   }
   .offer-divider::before,.offer-divider::after{content:"";flex:1;height:1px;background:rgba(61,42,109,.3);}
+  .offer-save{
+    position:relative;display:flex;align-items:center;gap:14px;max-width:340px;margin:0 auto 8px;
+    color:var(--purple);font-size:17px;font-weight:800;letter-spacing:1px;
+  }
+  .offer-save::before,.offer-save::after{content:"";flex:1;height:1px;background:rgba(61,42,109,.35);}
   .offer-alt{position:relative;font-size:17px;font-weight:700;margin:0 0 20px;color:#2C1E52;}
   .offer-alt span{font-size:26px;color:var(--green);font-weight:800;}
   .offer-btn{
@@ -599,6 +604,7 @@
       <div class="offer-banner">
         <div class="offer-flag">🔥 Limited Time Offer</div>
         <h3 class="offer-headline">Whole House Blinds</h3>
+        <div class="offer-save"><span>SAVE UP TO £500</span></div>
         <p class="offer-detail">(up to 8 blinds)</p>
         <div class="offer-divider"><span>or</span></div>
         <p class="offer-alt"><span>£109</span> per blind</p>
